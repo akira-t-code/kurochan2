@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日常英会話フラッシュカード</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: white;
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    /* カテゴリタブ */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 2px solid rgba(255,255,255,0.6);
+      background: transparent;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: white;
+      color: #764ba2;
+      border-color: white;
+      font-weight: bold;
+    }
+
+    .tab:hover:not(.active) {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* 進捗 */
+    .progress-wrap {
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.9rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      max-width: 480px;
+      height: 6px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: white;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    /* カード */
+    .card-wrap {
+      perspective: 1200px;
+      width: 100%;
+      max-width: 480px;
+      height: 280px;
+      margin-bottom: 28px;
+      cursor: pointer;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .card-front {
+      background: white;
+    }
+
+    .card-back {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      transform: rotateY(180deg);
+      color: white;
+    }
+
+    .card-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 16px;
+    }
+
+    .card-back .card-label {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .card-text-ja {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .card-text-en {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .card-hint {
+      font-size: 0.8rem;
+      color: #bbb;
+      margin-top: 12px;
+    }
+
+    .card-back .card-text-ja {
+      color: rgba(255,255,255,0.85);
+      font-size: 1rem;
+      font-weight: normal;
+    }
+
+    /* ボタン */
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 120px;
+    }
+
+    .btn-prev {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .btn-next {
+      background: white;
+      color: #764ba2;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 結果 */
+    .result-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-know {
+      background: #4ade80;
+      color: white;
+    }
+
+    .btn-unknown {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    /* カウンター */
+    .score {
+      color: rgba(255,255,255,0.85);
+      font-size: 0.85rem;
+      display: flex;
+      gap: 16px;
+    }
+
+    .score span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dot-green { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+    .dot-red   { width: 8px; height: 8px; border-radius: 50%; background: #f87171; }
+
+    /* 完了画面 */
+    .complete {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .complete.show {
+      display: flex;
+    }
+
+    .complete-box {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .complete-emoji {
+      font-size: 4rem;
+      margin-bottom: 12px;
+    }
+
+    .complete-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .complete-score {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .main-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<h1>日常英会話フラッシュカード</h1>
+<p class="subtitle">カードをタップして英語を確認しよう</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchCategory('greeting')">日常・挨拶</button>
+  <button class="tab" onclick="switchCategory('business')">仕事・ビジネス</button>
+  <button class="tab" onclick="switchCategory('shopping')">買い物・外食</button>
+  <button class="tab" onclick="switchCategory('travel')">旅行・観光</button>
+</div>
+
+<div class="main-content" id="mainContent">
+  <div class="progress-wrap">
+    <span id="cardCount">1 / 12</span>
+    <div class="score">
+      <span><div class="dot-green"></div><span id="knowCount">0</span> 知ってた</span>
+      <span><div class="dot-red"></div><span id="unknownCount">0</span> 知らなかった</span>
+    </div>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+  </div>
+
+  <div class="card-wrap" onclick="flipCard()">
+    <div class="card" id="card">
+      <div class="card-face card-front">
+        <div class="card-label">日本語</div>
+        <div class="card-text-ja" id="jaText"></div>
+        <div class="card-hint">タップして英語を見る</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-label">English</div>
+        <div class="card-text-en" id="enText"></div>
+        <div class="card-text-ja" id="jaTextBack"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-buttons" id="resultButtons" style="display:none; margin-bottom: 20px;">
+    <button class="btn btn-unknown" onclick="answer(false)">知らなかった</button>
+    <button class="btn btn-know" onclick="answer(true)">知ってた！</button>
+  </div>
+
+  <div class="buttons" id="navButtons">
+    <button class="btn btn-prev" id="prevBtn" onclick="prevCard()" disabled>← 前へ</button>
+    <button class="btn btn-next" id="nextBtn" onclick="nextCard()">次へ →</button>
+  </div>
+</div>
+
+<div class="complete" id="completeScreen">
+  <div class="complete-box">
+    <div class="complete-emoji" id="completeEmoji">🎉</div>
+    <div class="complete-title">お疲れ様でした！</div>
+    <div class="complete-score" id="completeScore"></div>
+    <button class="btn-restart" onclick="restart()">もう一度やる</button>
+  </div>
+</div>
+
+<script>
+  const data = {
+    greeting: [
+      { ja: "おはようございます",              en: "Good morning." },
+      { ja: "こんにちは",                      en: "Hello. / Good afternoon." },
+      { ja: "こんばんは",                      en: "Good evening." },
+      { ja: "お元気ですか？",                  en: "How are you?" },
+      { ja: "おかげさまで元気です",            en: "I'm doing well, thank you." },
+      { ja: "はじめまして",                    en: "Nice to meet you." },
+      { ja: "よろしくお願いします",            en: "I look forward to working with you." },
+      { ja: "ありがとうございます",            en: "Thank you very much." },
+      { ja: "すみません",                      en: "Excuse me. / I'm sorry." },
+      { ja: "大丈夫ですよ",                    en: "No problem. / It's okay." },
+      { ja: "お疲れ様でした",                  en: "Good work today." },
+      { ja: "またね / またあとで",             en: "See you later." },
+    ],
+    business: [
+      { ja: "会議を始めましょう",              en: "Let's get started." },
+      { ja: "確認させてください",              en: "Let me confirm that." },
+      { ja: "少々お待ちください",              en: "Just a moment, please." },
+      { ja: "折り返しご連絡します",            en: "I'll get back to you." },
+      { ja: "ご担当者はどなたですか？",        en: "Who is in charge of this?" },
+      { ja: "期限はいつですか？",              en: "What is the deadline?" },
+      { ja: "資料をお送りします",              en: "I'll send you the documents." },
+      { ja: "ご確認をお願いします",            en: "Could you please review this?" },
+      { ja: "ご不明な点があればお知らせください", en: "Please let me know if you have any questions." },
+      { ja: "お世話になっております",          en: "Thank you for your continued support." },
+      { ja: "よろしければ来週お話しできますか？", en: "Would you be available to talk next week?" },
+      { ja: "ご提案をありがとうございます",    en: "Thank you for your suggestion." },
+    ],
+    shopping: [
+      { ja: "これはいくらですか？",           en: "How much is this?" },
+      { ja: "試着してもいいですか？",          en: "Can I try this on?" },
+      { ja: "もう少し安くなりますか？",        en: "Can you give me a discount?" },
+      { ja: "カードで払えますか？",            en: "Can I pay by card?" },
+      { ja: "袋に入れてください",             en: "Please put it in a bag." },
+      { ja: "レシートをください",             en: "Can I have a receipt, please?" },
+      { ja: "おすすめは何ですか？",           en: "What do you recommend?" },
+      { ja: "注文してもいいですか？",          en: "Can I order, please?" },
+      { ja: "お会計をお願いします",           en: "Check, please." },
+      { ja: "テイクアウトできますか？",        en: "Can I get this to go?" },
+      { ja: "アレルギーがあります",           en: "I have allergies." },
+      { ja: "辛さを控えめにしてください",      en: "Could you make it less spicy?" },
+    ],
+    travel: [
+      { ja: "駅はどこですか？",               en: "Where is the station?" },
+      { ja: "近くにコンビニはありますか？",    en: "Is there a convenience store nearby?" },
+      { ja: "チェックインをお願いします",      en: "I'd like to check in." },
+      { ja: "チェックアウトは何時ですか？",    en: "What time is checkout?" },
+      { ja: "この電車は渋谷に止まりますか？",  en: "Does this train stop at Shibuya?" },
+      { ja: "写真を撮ってもらえますか？",      en: "Could you take a picture of me?" },
+      { ja: "荷物を預かってもらえますか？",    en: "Can I leave my luggage here?" },
+      { ja: "タクシーを呼んでもらえますか？",  en: "Could you call a taxi for me?" },
+      { ja: "Wi-Fiはありますか？",            en: "Is there Wi-Fi?" },
+      { ja: "道に迷ってしまいました",          en: "I'm lost." },
+      { ja: "ここに行きたいのですが",          en: "I'd like to go here." },
+      { ja: "入場料はいくらですか？",          en: "How much is the admission fee?" },
+    ]
+  };
+
+  let currentCategory = 'greeting';
+  let cards = [];
+  let index = 0;
+  let isFlipped = false;
+  let knowCount = 0;
+  let unknownCount = 0;
+  let answered = [];
+
+  function init() {
+    cards = [...data[currentCategory]];
+    index = 0;
+    isFlipped = false;
+    knowCount = 0;
+    unknownCount = 0;
+    answered = new Array(cards.length).fill(null);
+    renderCard();
+    updateUI();
+  }
+
+  function switchCategory(cat) {
+    currentCategory = cat;
+    const catOrder = ['greeting', 'business', 'shopping', 'travel'];
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', catOrder[i] === cat);
+    });
+    document.getElementById('completeScreen').classList.remove('show');
+    document.getElementById('mainContent').style.display = 'flex';
+    init();
+  }
+
+  function renderCard() {
+    const c = cards[index];
+    document.getElementById('jaText').textContent = c.ja;
+    document.getElementById('enText').textContent = c.en;
+    document.getElementById('jaTextBack').textContent = c.ja;
+
+    const card = document.getElementById('card');
+    card.classList.remove('flipped');
+    isFlipped = false;
+
+    document.getElementById('resultButtons').style.display = 'none';
+    document.getElementById('navButtons').style.display = 'flex';
+  }
+
+  function flipCard() {
+    if (isFlipped) return;
+    isFlipped = true;
+    document.getElementById('card').classList.add('flipped');
+    document.getElementById('resultButtons').style.display = 'flex';
+    document.getElementById('navButtons').style.display = 'none';
+  }
+
+  function answer(knew) {
+    if (answered[index] === null) {
+      if (knew) knowCount++;
+      else unknownCount++;
+      answered[index] = knew;
+    }
+    updateUI();
+    nextCard();
+  }
+
+  function nextCard() {
+    if (index < cards.length - 1) {
+      index++;
+      renderCard();
+      updateUI();
+    } else if (answered.every(a => a !== null)) {
+      showComplete();
+    }
+  }
+
+  function prevCard() {
+    if (index > 0) {
+      index--;
+      renderCard();
+      updateUI();
+    }
+  }
+
+  function updateUI() {
+    document.getElementById('cardCount').textContent = `${index + 1} / ${cards.length}`;
+    document.getElementById('progressFill').style.width = `${((index + 1) / cards.length) * 100}%`;
+    document.getElementById('knowCount').textContent = knowCount;
+    document.getElementById('unknownCount').textContent = unknownCount;
+    document.getElementById('prevBtn').disabled = index === 0;
+    document.getElementById('nextBtn').disabled = index === cards.length - 1;
+  }
+
+  function showComplete() {
+    document.getElementById('mainContent').style.display = 'none';
+    const screen = document.getElementById('completeScreen');
+    screen.classList.add('show');
+
+    const pct = Math.round((knowCount / cards.length) * 100);
+    let emoji = pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪';
+    document.getElementById('completeEmoji').textContent = emoji;
+    document.getElementById('completeScore').textContent =
+      `${cards.length}問中 ${knowCount}問 知っていました（${pct}%）`;
+  }
+
+  function restart() {
+    document.getElementById('completeScreen').classList.remove('show');
+    document.getElementById('mainContent').style.display = 'flex';
+    init();
+  }
+
+  init();
+</script>
+</body>
+</html>
