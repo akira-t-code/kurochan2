@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日常英会話フラッシュカード</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: white;
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    /* カテゴリタブ */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 2px solid rgba(255,255,255,0.6);
+      background: transparent;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: white;
+      color: #764ba2;
+      border-color: white;
+      font-weight: bold;
+    }
+
+    .tab:hover:not(.active) {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* 進捗 */
+    .progress-wrap {
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.9rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      max-width: 480px;
+      height: 6px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: white;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    /* カード */
+    .card-wrap {
+      perspective: 1200px;
+      width: 100%;
+      max-width: 480px;
+      height: 340px;
+      margin-bottom: 28px;
+      cursor: pointer;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .card-front {
+      background: white;
+    }
+
+    .card-back {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      transform: rotateY(180deg);
+      color: white;
+    }
+
+    .card-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 16px;
+    }
+
+    .card-back .card-label {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .card-text-ja {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .card-text-en {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .card-hint {
+      font-size: 0.8rem;
+      color: #bbb;
+      margin-top: 12px;
+    }
+
+    .card-back .card-text-ja {
+      color: rgba(255,255,255,0.85);
+      font-size: 1rem;
+      font-weight: normal;
+    }
+
+    /* ボタン */
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 120px;
+    }
+
+    .btn-prev {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .btn-next {
+      background: white;
+      color: #764ba2;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 結果 */
+    .result-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-know {
+      background: #4ade80;
+      color: white;
+    }
+
+    .btn-unknown {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    /* カウンター */
+    .score {
+      color: rgba(255,255,255,0.85);
+      font-size: 0.85rem;
+      display: flex;
+      gap: 16px;
+    }
+
+    .score span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dot-green { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+    .dot-red   { width: 8px; height: 8px; border-radius: 50%; background: #f87171; }
+
+    /* 完了画面 */
+    .complete {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .complete.show {
+      display: flex;
+    }
+
+    .complete-box {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .complete-emoji {
+      font-size: 4rem;
+      margin-bottom: 12px;
+    }
+
+    .complete-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .complete-score {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .main-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<h1>日常英会話フラッシュカード</h1>
+<p class="subtitle">カードをタップして英語を確認しよう</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchCategory('greeting')">日常・挨拶</button>
+  <button class="tab" onclick="switchCategory('business')">仕事・ビジネス</button>
+  <button class="tab" onclick="switchCategory('shopping')">買い物・外食</button>
+  <button class="tab" onclick="switchCategory('travel')">旅行・観光</button>
+  <button class="tab" onclick="switchCategory('transport')">タクシー・電車</button>
+  <button class="tab" onclick="switchCategory('hotel')">ホテルトラブル</button>
+</div>
+
+<div class="main-content" id="mainContent">
+  <div class="progress-wrap">
+    <span id="cardCount">1 / 12</span>
+    <div class="score">
+      <span><div class="dot-green"></div><span id="knowCount">0</span> 知ってた</span>
+      <span><div class="dot-red"></div><span id="unknownCount">0</span> 知らなかった</span>
+    </div>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+  </div>
+
+  <div class="card-wrap" onclick="flipCard()">
+    <div class="card" id="card">
+      <div class="card-face card-front">
+        <div class="card-label">日本語</div>
+        <div class="card-text-ja" id="jaText"></div>
+        <div class="card-hint">タップして英語を見る</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-label">English</div>
+        <div class="card-text-en" id="enText"></div>
+        <div class="card-text-ja" id="jaTextBack"></div>
+        <div id="responseSection" style="display:none; margin-top:14px; border-top:1px solid rgba(255,255,255,0.4); padding-top:12px; width:100%; text-align:center;">
+          <div class="card-label" style="margin-bottom:6px;">Staff Response</div>
+          <div id="resEnText" style="font-size:1rem; font-weight:bold; line-height:1.5;"></div>
+          <div id="resJaText" style="font-size:0.8rem; opacity:0.85; margin-top:5px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-buttons" id="resultButtons" style="display:none; margin-bottom: 20px;">
+    <button class="btn btn-unknown" onclick="answer(false)">知らなかった</button>
+    <button class="btn btn-know" onclick="answer(true)">知ってた！</button>
+  </div>
+
+  <div class="buttons" id="navButtons">
+    <button class="btn btn-prev" id="prevBtn" onclick="prevCard()" disabled>← 前へ</button>
+    <button class="btn btn-next" id="nextBtn" onclick="nextCard()">次へ →</button>
+  </div>
+</div>
+
+<div class="complete" id="completeScreen">
+  <div class="complete-box">
+    <div class="complete-emoji" id="completeEmoji">🎉</div>
+    <div class="complete-title">お疲れ様でした！</div>
+    <div class="complete-score" id="completeScore"></div>
+    <button class="btn-restart" onclick="restart()">もう一度やる</button>
+  </div>
+</div>
+
+<script>
+  const data = {
+    greeting: [
+      { ja: "\u304a\u306f\u3088\u3046\u3054\u3056\u3044\u307e\u3059",              en: "Good morning." },
+      { ja: "\u3053\u3093\u306b\u3061\u306f",                      en: "Hello. / Good afternoon." },
+      { ja: "\u3053\u3093\u3070\u3093\u306f",                      en: "Good evening." },
+      { ja: "\u304a\u5143\u6c17\u3067\u3059\u304b\uff1f",                  en: "How are you?" },
+      { ja: "\u304a\u304b\u3052\u3055\u307e\u3067\u5143\u6c17\u3067\u3059",            en: "I'm doing well, thank you." },
+      { ja: "\u306f\u3058\u3081\u307e\u3057\u3066",                    en: "Nice to meet you." },
+      { ja: "\u3088\u308d\u3057\u304f\u304a\u9858\u3044\u3057\u307e\u3059",            en: "I look forward to working with you." },
+      { ja: "\u3042\u308a\u304c\u3068\u3046\u3054\u3056\u3044\u307e\u3059",            en: "Thank you very much." },
+      { ja: "\u3059\u307f\u307e\u305b\u3093",                      en: "Excuse me. / I'm sorry." },
+      { ja: "\u5927\u4e08\u592b\u3067\u3059\u3088",                    en: "No problem. / It's okay." },
+      { ja: "\u304a\u75b2\u308c\u69d8\u3067\u3057\u305f",                  en: "Good work today." },
+      { ja: "\u307e\u305f\u306d / \u307e\u305f\u3042\u3068\u3067",             en: "See you later." },
+    ],
+    business: [
+      { ja: "\u4f1a\u8b70\u3092\u59cb\u3081\u307e\u3057\u3087\u3046",              en: "Let's get started." },
+      { ja: "\u78ba\u8a8d\u3055\u305b\u3066\u304f\u3060\u3055\u3044",              en: "Let me confirm that." },
+      { ja: "\u5c11\u3005\u304a\u5f85\u3061\u304f\u3060\u3055\u3044",              en: "Just a moment, please." },
+      { ja: "\u6298\u308a\u8fd4\u3057\u3054\u9023\u7d61\u3057\u307e\u3059",            en: "I'll get back to you." },
+      { ja: "\u3054\u62c5\u5f53\u8005\u306f\u3069\u306a\u305f\u3067\u3059\u304b\uff1f",        en: "Who is in charge of this?" },
+      { ja: "\u671f\u9650\u306f\u3044\u3064\u3067\u3059\u304b\uff1f",              en: "What is the deadline?" },
+      { ja: "\u8cc7\u6599\u3092\u304a\u9001\u308a\u3057\u307e\u3059",              en: "I'll send you the documents." },
+      { ja: "\u3054\u78ba\u8a8d\u3092\u304a\u9858\u3044\u3057\u307e\u3059",            en: "Could you please review this?" },
+      { ja: "\u3054\u4e0d\u660e\u306a\u70b9\u304c\u3042\u308c\u3070\u304a\u77e5\u3089\u305b\u304f\u3060\u3055\u3044", en: "Please let me know if you have any questions." },
+      { ja: "\u304a\u4e16\u8a71\u306b\u306a\u3063\u3066\u304a\u308a\u307e\u3059",          en: "Thank you for your continued support." },
+      { ja: "\u3088\u308d\u3057\u3051\u308c\u3070\u6765\u9031\u304a\u8a71\u3057\u3067\u304d\u307e\u3059\u304b\uff1f", en: "Would you be available to talk next week?" },
+      { ja: "\u3054\u63d0\u6848\u3092\u3042\u308a\u304c\u3068\u3046\u3054\u3056\u3044\u307e\u3059",    en: "Thank you for your suggestion." },
+    ],
+    shopping: [
+      { ja: "\u3053\u308c\u306f\u3044\u304f\u3089\u3067\u3059\u304b\uff1f",           en: "How much is this?" },
+      { ja: "\u8a66\u7740\u3057\u3066\u3082\u3044\u3044\u3067\u3059\u304b\uff1f",          en: "Can I try this on?" },
+      { ja: "\u3082\u3046\u5c11\u3057\u5b89\u304f\u306a\u308a\u307e\u3059\u304b\uff1f",        en: "Can you give me a discount?" },
+      { ja: "\u30ab\u30fc\u30c9\u3067\u6255\u3048\u307e\u3059\u304b\uff1f",            en: "Can I pay by card?" },
+      { ja: "\u888b\u306b\u5165\u308c\u3066\u304f\u3060\u3055\u3044",             en: "Please put it in a bag." },
+      { ja: "\u30ec\u30b7\u30fc\u30c8\u3092\u304f\u3060\u3055\u3044",             en: "Can I have a receipt, please?" },
+      { ja: "\u304a\u3059\u3059\u3081\u306f\u4f55\u3067\u3059\u304b\uff1f",           en: "What do you recommend?" },
+      { ja: "\u6ce8\u6587\u3057\u3066\u3082\u3044\u3044\u3067\u3059\u304b\uff1f",          en: "Can I order, please?" },
+      { ja: "\u304a\u4f1a\u8a08\u3092\u304a\u9858\u3044\u3057\u307e\u3059",           en: "Check, please." },
+      { ja: "\u30c6\u30a4\u30af\u30a2\u30a6\u30c8\u3067\u304d\u307e\u3059\u304b\uff1f",        en: "Can I get this to go?" },
+      { ja: "\u30a2\u30ec\u30eb\u30ae\u30fc\u304c\u3042\u308a\u307e\u3059",           en: "I have allergies." },
+      { ja: "\u8f9b\u3055\u3092\u63a7\u3048\u3081\u306b\u3057\u3066\u304f\u3060\u3055\u3044",      en: "Could you make it less spicy?" },
+    ],
+    travel: [
+      { ja: "\u99c5\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",               en: "Where is the station?" },
+      { ja: "\u8fd1\u304f\u306b\u30b3\u30f3\u30d3\u30cb\u306f\u3042\u308a\u307e\u3059\u304b\uff1f",    en: "Is there a convenience store nearby?" },
+      { ja: "\u30c1\u30a7\u30c3\u30af\u30a4\u30f3\u3092\u304a\u9858\u3044\u3057\u307e\u3059",      en: "I'd like to check in." },
+      { ja: "\u30c1\u30a7\u30c3\u30af\u30a2\u30a6\u30c8\u306f\u4f55\u6642\u3067\u3059\u304b\uff1f",    en: "What time is checkout?" },
+      { ja: "\u3053\u306e\u96fb\u8eca\u306f\u6e0b\u8c37\u306b\u6b62\u307e\u308a\u307e\u3059\u304b\uff1f",  en: "Does this train stop at Shibuya?" },
+      { ja: "\u5199\u771f\u3092\u64ae\u3063\u3066\u3082\u3089\u3048\u307e\u3059\u304b\uff1f",      en: "Could you take a picture of me?" },
+      { ja: "\u8377\u7269\u3092\u9810\u304b\u3063\u3066\u3082\u3089\u3048\u307e\u3059\u304b\uff1f",    en: "Can I leave my luggage here?" },
+      { ja: "\u30bf\u30af\u30b7\u30fc\u3092\u547c\u3093\u3067\u3082\u3089\u3048\u307e\u3059\u304b\uff1f",  en: "Could you call a taxi for me?" },
+      { ja: "Wi-Fi\u306f\u3042\u308a\u307e\u3059\u304b\uff1f",            en: "Is there Wi-Fi?" },
+      { ja: "\u9053\u306b\u8ff7\u3063\u3066\u3057\u307e\u3044\u307e\u3057\u305f",          en: "I'm lost." },
+      { ja: "\u3053\u3053\u306b\u884c\u304d\u305f\u3044\u306e\u3067\u3059\u304c",          en: "I'd like to go here." },
+      { ja: "\u5165\u5834\u6599\u306f\u3044\u304f\u3089\u3067\u3059\u304b\uff1f",          en: "How much is the admission fee?" },
+      { ja: "\u3053\u306e\u8fba\u306e\u89b3\u5149\u540d\u6240\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",  en: "Where are the tourist attractions around here?" },
+      { ja: "\u304a\u3059\u3059\u3081\u306e\u89b3\u5149\u30b9\u30dd\u30c3\u30c8\u306f\u3069\u3053\u3067\u3059\u304b\uff1f", en: "What tourist spots do you recommend?" },
+      { ja: "\u89b3\u5149\u30de\u30c3\u30d7\u306f\u3042\u308a\u307e\u3059\u304b\uff1f",        en: "Do you have a tourist map?" },
+      { ja: "\u82f1\u8a9e\u306e\u30d1\u30f3\u30d5\u30ec\u30c3\u30c8\u306f\u3042\u308a\u307e\u3059\u304b\uff1f", en: "Do you have a brochure in English?" },
+      { ja: "\u3053\u3053\u306f\u4f55\u6642\u306b\u958b\u304d\u307e\u3059\u304b\uff1f",        en: "What time does this place open?" },
+      { ja: "\u3053\u3053\u306f\u4f55\u6642\u306b\u9589\u307e\u308a\u307e\u3059\u304b\uff1f",      en: "What time does this place close?" },
+      { ja: "\u7121\u6599\u3067\u5165\u308c\u307e\u3059\u304b\uff1f",             en: "Is it free to enter?" },
+      { ja: "\u97f3\u58f0\u30ac\u30a4\u30c9\u306f\u3042\u308a\u307e\u3059\u304b\uff1f",        en: "Is there an audio guide?" },
+      { ja: "\u5199\u771f\u64ae\u5f71\u306f\u7981\u6b62\u3067\u3059\u304b\uff1f",          en: "Is photography prohibited here?" },
+      { ja: "\u6709\u540d\u306a\u5730\u5143\u6599\u7406\u306f\u4f55\u3067\u3059\u304b\uff1f",      en: "What is the famous local food here?" },
+      { ja: "\u3053\u3053\u304b\u3089\u6b69\u3044\u3066\u884c\u3051\u307e\u3059\u304b\uff1f",      en: "Can I walk there from here?" },
+      { ja: "\u4e00\u756a\u4eba\u6c17\u306e\u89b3\u5149\u5730\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",  en: "What is the most popular tourist spot?" },
+    ],
+    transport: [
+      { ja: "\u7a7a\u6e2f\u307e\u3067\u3044\u304f\u3089\u3067\u3059\u304b\uff1f",              en: "How much is it to the airport?" },
+      { ja: "\u3069\u306e\u304f\u3089\u3044\u6642\u9593\u304c\u304b\u304b\u308a\u307e\u3059\u304b\uff1f",      en: "How long does it take?" },
+      { ja: "\u3053\u306e\u4f4f\u6240\u307e\u3067\u884c\u3063\u3066\u304f\u3060\u3055\u3044",          en: "Please take me to this address." },
+      { ja: "\u3053\u3053\u3067\u6b62\u3081\u3066\u304f\u3060\u3055\u3044",               en: "Please stop here." },
+      { ja: "\u30c8\u30e9\u30f3\u30af\u306b\u8377\u7269\u3092\u5165\u308c\u3066\u3082\u3089\u3048\u307e\u3059\u304b\uff1f", en: "Could you put my luggage in the trunk?" },
+      { ja: "\u9818\u53ce\u66f8\u3092\u304f\u3060\u3055\u3044",                   en: "Could I have a receipt, please?" },
+      { ja: "\u6b21\u306e\u96fb\u8eca\u306f\u4f55\u6642\u3067\u3059\u304b\uff1f",              en: "What time is the next train?" },
+      { ja: "\u3053\u306e\u96fb\u8eca\u306f\u25cb\u25cb\u884c\u304d\u3067\u3059\u304b\uff1f",           en: "Is this train going to \u25cb\u25cb?" },
+      { ja: "\u4f55\u756a\u7dda\u306b\u4e57\u308c\u3070\u3044\u3044\u3067\u3059\u304b\uff1f",          en: "Which platform should I take?" },
+      { ja: "\u4e57\u308a\u63db\u3048\u306f\u3042\u308a\u307e\u3059\u304b\uff1f",              en: "Do I need to transfer?" },
+      { ja: "\u7d42\u70b9\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",                  en: "What is the last stop?" },
+      { ja: "\u3053\u306e\u30d0\u30b9\u306f\u5e02\u5185\u4e2d\u5fc3\u90e8\u306b\u884c\u304d\u307e\u3059\u304b\uff1f",  en: "Does this bus go to the city center?" },
+      { ja: "\u7247\u9053\u3067\u3059\u304b\u3001\u5f80\u5fa9\u3067\u3059\u304b\uff1f",            en: "Is that one-way or round trip?" },
+      { ja: "\u6e0b\u6ede\u3092\u907f\u3051\u3066\u884c\u3051\u307e\u3059\u304b\uff1f",            en: "Can you take a route to avoid traffic?" },
+    ],
+    hotel: [
+      { ja: "\u4e88\u7d04\u3092\u3057\u3066\u3044\u307e\u3059",          en: "I have a reservation.",                    res: "Could I have your name, please?",                          resJa: "\u304a\u540d\u524d\u3092\u304a\u805e\u304b\u305b\u3044\u305f\u3060\u3051\u307e\u3059\u304b\uff1f" },
+      { ja: "\u540d\u524d\u306fXXX\u3067\u3059",            en: "My name is XXX.",                          res: "Thank you. I'll check your reservation right away.",       resJa: "\u3042\u308a\u304c\u3068\u3046\u3054\u3056\u3044\u307e\u3059\u3002\u3059\u3050\u306b\u3054\u4e88\u7d04\u3092\u78ba\u8a8d\u3044\u305f\u3057\u307e\u3059\u3002" },
+      { ja: "\u30b7\u30f3\u30b0\u30eb\u30eb\u30fc\u30e0\u3092\u4e88\u7d04\u3057\u307e\u3057\u305f", en: "I reserved a single room.",            res: "Yes, I have your reservation. Here is your room key.",     resJa: "\u306f\u3044\u3001\u3054\u78ba\u8a8d\u3067\u304d\u307e\u3057\u305f\u3002\u3053\u3061\u3089\u304c\u304a\u90e8\u5c4b\u306e\u9375\u3067\u3059\u3002" },
+      { ja: "2\u6cca\u306e\u4e88\u7d04\u3067\u3059",            en: "I have a reservation for two nights.",     res: "That's right. You'll be checking out on Sunday.",          resJa: "\u306f\u3044\u3001\u65e5\u66dc\u65e5\u304c\u30c1\u30a7\u30c3\u30af\u30a2\u30a6\u30c8\u3067\u3059\u306d\u3002" },
+      { ja: "\u671d\u98df\u306f\u542b\u307e\u308c\u3066\u3044\u307e\u3059\u304b\uff1f",  en: "Is breakfast included?",                  res: "Yes, breakfast is included. It's served from 7 to 10 a.m.", resJa: "\u306f\u3044\u3001\u671d\u98df\u8fbc\u307f\u3067\u3059\u30027\u6642\u304b\u308910\u6642\u306b\u3054\u7528\u610f\u3057\u3066\u304a\u308a\u307e\u3059\u3002" },
+      { ja: "\u7981\u7159\u90e8\u5c4b\u3092\u304a\u9858\u3044\u3057\u307e\u3059",   en: "I'd like a non-smoking room, please.",    res: "Of course. Your room is a non-smoking room.",              resJa: "\u304b\u3057\u3053\u307e\u308a\u307e\u3057\u305f\u3002\u7981\u7159\u306e\u304a\u90e8\u5c4b\u3067\u3054\u3056\u3044\u307e\u3059\u3002" },
+      { ja: "\u9ad8\u5c64\u968e\u306e\u90e8\u5c4b\u306f\u3042\u308a\u307e\u3059\u304b\uff1f", en: "Do you have a room on a higher floor?", res: "Yes, we can offer you a room on the 15th floor.",          resJa: "\u306f\u3044\u300115\u968e\u306e\u304a\u90e8\u5c4b\u3092\u3054\u7528\u610f\u3067\u304d\u307e\u3059\u3002" },
+      { ja: "\u65e9\u3081\u306b\u30c1\u30a7\u30c3\u30af\u30a4\u30f3\u3067\u304d\u307e\u3059\u304b\uff1f", en: "Can I check in early?",             res: "Your room is ready now. Please go ahead.",                 resJa: "\u304a\u90e8\u5c4b\u306e\u6e96\u5099\u304c\u3067\u304d\u3066\u304a\u308a\u307e\u3059\u3002\u3069\u3046\u305e\u3054\u5165\u5ba4\u304f\u3060\u3055\u3044\u3002" },
+      { ja: "\u90e8\u5c4b\u306e\u7167\u660e\u304c\u5207\u308c\u3066\u3044\u307e\u3059",            en: "The light in my room is out." },
+      { ja: "\u30c8\u30a4\u30ec\u304c\u6d41\u308c\u307e\u305b\u3093",                  en: "The toilet won't flush." },
+      { ja: "\u30b7\u30e3\u30ef\u30fc\u306e\u304a\u6e6f\u304c\u51fa\u307e\u305b\u3093",            en: "There's no hot water in the shower." },
+      { ja: "\u30a8\u30a2\u30b3\u30f3\u304c\u52d5\u304d\u307e\u305b\u3093",                en: "The air conditioning isn't working." },
+      { ja: "\u90e8\u5c4b\u306e\u9375\u304c\u4f7f\u3048\u307e\u305b\u3093",               en: "My room key doesn't work." },
+      { ja: "\u96a3\u306e\u90e8\u5c4b\u304c\u3046\u308b\u3055\u3044\u3067\u3059",              en: "The room next door is very noisy." },
+      { ja: "\u30bf\u30aa\u30eb\u3092\u8ffd\u52a0\u3067\u3082\u3089\u3048\u307e\u3059\u304b\uff1f",        en: "Could I have some extra towels?" },
+      { ja: "\u90e8\u5c4b\u3092\u6383\u9664\u3057\u3066\u3082\u3089\u3048\u307e\u3059\u304b\uff1f",        en: "Could you clean my room, please?" },
+      { ja: "\u30e2\u30fc\u30cb\u30f3\u30b0\u30b3\u30fc\u30eb\u3092\u304a\u9858\u3044\u3057\u307e\u3059",      en: "I'd like a wake-up call, please." },
+      { ja: "\u30eb\u30fc\u30e0\u30b5\u30fc\u30d3\u30b9\u3092\u304a\u9858\u3044\u3057\u307e\u3059",        en: "I'd like to order room service." },
+      { ja: "\u30c1\u30a7\u30c3\u30af\u30a2\u30a6\u30c8\u3092\u5ef6\u9577\u3067\u304d\u307e\u3059\u304b\uff1f",    en: "Can I extend my checkout time?" },
+      { ja: "\u5225\u306e\u90e8\u5c4b\u306b\u5909\u3048\u3066\u3082\u3089\u3048\u307e\u3059\u304b\uff1f",      en: "Could I change to a different room?" },
+    ]
+  };
+
+  let currentCategory = 'greeting';
+  let cards = [];
+  let index = 0;
+  let isFlipped = false;
+  let knowCount = 0;
+  let unknownCount = 0;
+  let answered = [];
+
+  function init() {
+    cards = [...data[currentCategory]];
+    index = 0;
+    isFlipped = false;
+    knowCount = 0;
+    unknownCount = 0;
+    answered = new Array(cards.length).fill(null);
+    renderCard();
+    updateUI();
+  }
+
+  function switchCategory(cat) {
+    currentCategory = cat;
+    const catOrder = ['greeting', 'business', 'shopping', 'travel', 'transport', 'hotel'];
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', catOrder[i] === cat);
+    });
+    document.getElementById('completeScreen').classList.remove('show');
+    document.getElementById('mainContent').style.display = 'flex';
+    init();
+  }
+
+  function renderCard() {
+    const c = cards[index];
+    document.getElementById('jaText').textContent = c.ja;
+    document.getElementById('enText').textContent = c.en;
+    document.getElementById('jaTextBack').textContent = c.ja;
+
+    const resSection = document.getElementById('responseSection');
+    if (c.res) {
+      document.getElementById('resEnText').textContent = c.res;
+      document.getElementById('resJaText').textContent = c.resJa || '';
+      resSection.style.display = 'block';
+    } else {
+      resSection.style.display = 'none';
+    }
+
+    const card = document.getElementById('card');
+    card.classList.remove('flipped');
+    isFlipped = false;
+
+    document.getElementById('resultButtons').style.display = 'none';
+    document.getElementById('navButtons').style.display = 'flex';
+  }
+
+  function getEnVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    const femalePrefs = ['Samantha', 'Karen', 'Ava', 'Allison', 'Fiona', 'Victoria', 'Zoe', 'Susan'];
+    for (const name of femalePrefs) {
+      const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+      if (v) return v;
+    }
+    return voices.find(v => /female/i.test(v.name) && v.lang.startsWith('en'))
+        || voices.find(v => v.lang.startsWith('en-US'))
+        || null;
+  }
+
+  function speak(text) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-US';
+    utter.rate = 0.85;
+    utter.pitch = 1.1;
+    const v = getEnVoice();
+    if (v) utter.voice = v;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function speakDialog(guestText, staffText) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const v = getEnVoice();
+
+    const g = new SpeechSynthesisUtterance(guestText);
+    g.lang = 'en-US'; g.rate = 0.85; g.pitch = 1.1;
+    if (v) g.voice = v;
+
+    const s = new SpeechSynthesisUtterance(staffText);
+    s.lang = 'en-US'; s.rate = 0.85; s.pitch = 0.9;
+    if (v) s.voice = v;
+
+    g.onend = () => setTimeout(() => window.speechSynthesis.speak(s), 700);
+    window.speechSynthesis.speak(g);
+  }
+
+  function flipCard() {
+    if (isFlipped) return;
+    isFlipped = true;
+    document.getElementById('card').classList.add('flipped');
+    document.getElementById('resultButtons').style.display = 'flex';
+    document.getElementById('navButtons').style.display = 'none';
+    const c = cards[index];
+    if (c.res) {
+      speakDialog(c.en, c.res);
+    } else {
+      speak(c.en);
+    }
+  }
+
+  function answer(knew) {
+    if (answered[index] === null) {
+      if (knew) knowCount++;
+      else unknownCount++;
+      answered[index] = knew;
+    }
+    updateUI();
+    nextCard();
+  }
+
+  function nextCard() {
+    if (index < cards.length - 1) {
+      index++;
+      renderCard();
+      updateUI();
+    } else if (answered.every(a => a !== null)) {
+      showComplete();
+    }
+  }
+
+  function prevCard() {
+    if (index > 0) {
+      index--;
+      renderCard();
+      updateUI();
+    }
+  }
+
+  function updateUI() {
+    document.getElementById('cardCount').textContent = `${index + 1} / ${cards.length}`;
+    document.getElementById('progressFill').style.width = `${((index + 1) / cards.length) * 100}%`;
+    document.getElementById('knowCount').textContent = knowCount;
+    document.getElementById('unknownCount').textContent = unknownCount;
+    document.getElementById('prevBtn').disabled = index === 0;
+    document.getElementById('nextBtn').disabled = index === cards.length - 1;
+  }
+
+  function showComplete() {
+    document.getElementById('mainContent').style.display = 'none';
+    const screen = document.getElementById('completeScreen');
+    screen.classList.add('show');
+
+    const pct = Math.round((knowCount / cards.length) * 100);
+    let emoji = pct >= 80 ? '\ud83c\udf89' : pct >= 50 ? '\ud83d\udc4d' : '\ud83d\udcaa';
+    document.getElementById('completeEmoji').textContent = emoji;
+    document.getElementById('completeScore').textContent =
+      `${cards.length}\u554f\u4e2d ${knowCount}\u554f \u77e5\u3063\u3066\u3044\u307e\u3057\u305f\uff08${pct}%\uff09`;
+  }
+
+  function restart() {
+    document.getElementById('completeScreen').classList.remove('show');
+    document.getElementById('mainContent').style.display = 'flex';
+    init();
+  }
+
+  init();
+</script>
+</body>
+</html>
