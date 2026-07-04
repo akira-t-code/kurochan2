@@ -325,6 +325,7 @@
   <button class="tab active" onclick="switchCategory('greeting')">日常・挨拶</button>
   <button class="tab" onclick="switchCategory('business')">仕事・ビジネス</button>
   <button class="tab" onclick="switchCategory('shopping')">買い物・外食</button>
+  <button class="tab" onclick="switchCategory('restaurant')">レストラン</button>
   <button class="tab" onclick="switchCategory('travel')">旅行・観光</button>
   <button class="tab" onclick="switchCategory('transport')">タクシー・電車</button>
   <button class="tab" onclick="switchCategory('hotel')">ホテルトラブル</button>
@@ -426,6 +427,26 @@
       { ja: "\u30a2\u30ec\u30eb\u30ae\u30fc\u304c\u3042\u308a\u307e\u3059",           en: "I have allergies." },
       { ja: "\u8f9b\u3055\u3092\u63a7\u3048\u3081\u306b\u3057\u3066\u304f\u3060\u3055\u3044",      en: "Could you make it less spicy?" },
     ],
+    restaurant: [
+      { ja: "予約をしています", en: "I have a reservation.", res: "What name is it under, please?", resJa: "お名前をお伺いできますか?" },
+      { ja: "名前はXXXです", en: "My name is XXX.", res: "Let me check... Yes, your table is ready.", resJa: "確認いたします…はい、お席のご用意ができております。" },
+      { ja: "2名です、予約はしていません", en: "We're a party of two, no reservation.", res: "No problem, please wait a moment.", resJa: "かしこまりました、少々お待ちください。" },
+      { ja: "どのくらい待ちますか?", en: "How long is the wait?", res: "About fifteen minutes.", resJa: "15分ほどでございます。" },
+      { ja: "窓側の席をお願いします", en: "Could we have a table by the window?", res: "Of course, right this way.", resJa: "かしこまりました、こちらへどうぞ。" },
+      { ja: "メニューをください", en: "Could I have a menu, please?", res: "Here you are.", resJa: "どうぞ。" },
+      { ja: "おすすめは何ですか?", en: "What do you recommend?", res: "Our special today is grilled salmon.", resJa: "本日のおすすめは鮭のグリルでございます。" },
+      { ja: "これは辛いですか?", en: "Is this spicy?", res: "Yes, it's a little spicy.", resJa: "はい、少し辛味がございます。" },
+      { ja: "ナッツのアレルギーがあります", en: "I have a nut allergy.", res: "Thank you for letting us know. I'll inform the kitchen.", resJa: "お知らせいただきありがとうございます。厨房に伝えます。" },
+      { ja: "注文をお願いします", en: "I'd like to order, please.", res: "Sure, what would you like?", resJa: "かしこまりました。ご注文はいかがなさいますか?" },
+      { ja: "これを一つお願いします", en: "I'll have this one, please." },
+      { ja: "お水をもう一杯いただけますか?", en: "Could I get another glass of water?", res: "Sure, right away.", resJa: "かしこまりました、すぐにお持ちいたします。" },
+      { ja: "注文したものがまだ来ていません", en: "My order hasn't arrived yet.", res: "I'm so sorry, let me check on that right away.", resJa: "大変申し訳ございません、すぐに確認いたします。" },
+      { ja: "これは注文していません", en: "I didn't order this.", res: "I apologize, I'll fix that right away.", resJa: "申し訳ございません、すぐに直します。" },
+      { ja: "とても美味しかったです", en: "That was delicious.", res: "Thank you! I'm glad you enjoyed it.", resJa: "ありがとうございます、お気に召していただけて嬉しいです。" },
+      { ja: "お会計をお願いします", en: "Check, please.", res: "Certainly, one moment please.", resJa: "かしこまりました、少々お待ちください。" },
+      { ja: "別々に払えますか?", en: "Can we pay separately?", res: "Yes, that's fine.", resJa: "はい、大丈夫でございます。" },
+      { ja: "残りを持ち帰りできますか?", en: "Could I get a box to take the rest home?", res: "Of course, I'll bring one right away.", resJa: "もちろんでございます、すぐにお持ちします。" },
+    ],
     travel: [
       { ja: "\u99c5\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",               en: "Where is the station?" },
       { ja: "\u8fd1\u304f\u306b\u30b3\u30f3\u30d3\u30cb\u306f\u3042\u308a\u307e\u3059\u304b\uff1f",    en: "Is there a convenience store nearby?" },
@@ -513,7 +534,7 @@
 
   function switchCategory(cat) {
     currentCategory = cat;
-    const catOrder = ['greeting', 'business', 'shopping', 'travel', 'transport', 'hotel'];
+    const catOrder = ['greeting', 'business', 'shopping', 'restaurant', 'travel', 'transport', 'hotel'];
     document.querySelectorAll('.tab').forEach((t, i) => {
       t.classList.toggle('active', catOrder[i] === cat);
     });
@@ -547,7 +568,10 @@
 
   function getEnVoice() {
     const voices = window.speechSynthesis.getVoices();
-    const femalePrefs = ['Samantha', 'Karen', 'Ava', 'Allison', 'Fiona', 'Victoria', 'Zoe', 'Susan'];
+    const femalePrefs = [
+      'Samantha', 'Karen', 'Ava', 'Allison', 'Fiona', 'Victoria', 'Zoe', 'Susan',
+      'Zira', 'Hazel', 'Aria', 'Jenny', 'Michelle', 'Catherine', 'Eva', 'Linda'
+    ];
     for (const name of femalePrefs) {
       const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
       if (v) return v;
