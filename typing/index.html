@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Typing プラクティス</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e2a4a, #0f172a);
+  }
+  .app {
+    width: 640px;
+    max-width: 92vw;
+    background: #ffe3ef;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    padding: 36px 40px;
+  }
+  h1 {
+    text-align: center;
+    margin: 0 0 8px;
+    font-size: 26px;
+    color: #1e293b;
+    letter-spacing: 2px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #38bdf8, #2563eb);
+    transition: width 0.15s ease;
+  }
+  #target {
+    font-size: 26px;
+    line-height: 1.9;
+    letter-spacing: 1px;
+    padding: 24px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    min-height: 90px;
+    color: #475569;
+  }
+  #target span.done {
+    color: #2563eb;
+    font-weight: 600;
+  }
+  #target span.next {
+    background: #fde047;
+    border-radius: 4px;
+    color: #1e293b;
+    box-shadow: 0 0 0 2px #fde047;
+  }
+  #target rt {
+    font-size: 0.5em;
+    color: #64748b;
+    user-select: none;
+  }
+  #input {
+    display: block;
+    width: 100%;
+    font-size: 20px;
+    padding: 14px 16px;
+    margin-top: 20px;
+    border-radius: 10px;
+    border: 2px solid #cbd5e1;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  #input:focus {
+    border-color: #2563eb;
+  }
+  #result {
+    margin-top: 18px;
+    min-height: 26px;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 600;
+    color: #16a34a;
+  }
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: #64748b;
+  }
+  .stats span {
+    font-weight: 700;
+    color: #1e293b;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <h1>Typing プラクティス</h1>
+  <div class="subtitle">表示された文章を正確に入力しましょう</div>
+
+  <div class="progress-bar">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+
+  <div id="target"></div>
+  <input type="text" id="input" autofocus placeholder="ここに入力してください">
+  <div id="result"></div>
+
+  <div class="stats">
+    <div>かかった時間 <span id="clearTime">0.0</span>秒</div>
+  </div>
+</div>
+
+<script>
+  // {漢字|ふりがな} の形式で、漢字部分にルビ(ふりがな)を付ける
+  const texts = [
+    "{今日|きょう}は6{月|がつ}17{日|にち}です。{朝|あさ}7{時|じ}に{起|お}きて、9{時|じ}から{仕事|しごと}を{始|はじ}めました。",
+    "{猿|さる}も{木|き}から{落|お}ちる。{塵|ちり}も{積|つ}もれば{山|やま}となる。{早|はや}く{宿題|しゅくだい}を{終|お}わらせましょう。",
+    "{雨|あめ}が{降|ふ}ったら、{傘|かさ}を{持|も}って{行|い}きましょう。{体|からだ}を{壊|こわ}さないようにしてください。",
+    "{私|わたし}の{趣味|しゅみ}は、{本|ほん}を{読|よ}むことと、{音楽|おんがく}を{聞|き}くことです。",
+    "{明日|あした}は{朝|あさ}{早|はや}くから、{病院|びょういん}で{仕事|しごと}があります。{元気|げんき}に{行|い}きましょう。"
+  ];
+
+  // "{漢字|かな}" を含む文字列から、ルビなしのプレーンテキスト(入力判定用)を作る
+  function toPlainText(raw) {
+    return raw.replace(/\{([^|{}]+)\|([^|{}]+)\}/g, "$1");
+  }
+
+  // "{漢字|かな}" を1文字ずつの配列に分解し、各文字に対応するルビ情報を付与する
+  // 例: "{今日|きょう}は" -> [{ch:"今",ruby:"きょう"}, {ch:"日",ruby:null}, {ch:"は",ruby:null}]
+  function parseRubyText(raw) {
+    const chars = [];
+    const regex = /\{([^|{}]+)\|([^|{}]+)\}/g;
+    let lastIndex = 0;
+    let match;
+    while ((match = regex.exec(raw)) !== null) {
+      const plainBefore = raw.slice(lastIndex, match.index);
+      for (const ch of plainBefore) {
+        chars.push({ ch, ruby: null });
+      }
+      const kanji = match[1];
+      const ruby = match[2];
+      for (let i = 0; i < kanji.length; i++) {
+        chars.push({ ch: kanji[i], ruby: i === 0 ? ruby : null });
+      }
+      lastIndex = regex.lastIndex;
+    }
+    const plainAfter = raw.slice(lastIndex);
+    for (const ch of plainAfter) {
+      chars.push({ ch, ruby: null });
+    }
+    return chars;
+  }
+
+  let text = "";
+  let rubyChars = [];
+  let startTime = null;
+  let timerInterval = null;
+  let warned = false;
+
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+  }
+
+  function playTone(freq, startTime, duration, type, gainPeak) {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
+    gain.gain.linearRampToValueAtTime(gainPeak, ctx.currentTime + startTime + 0.02);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + startTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime + startTime);
+    osc.stop(ctx.currentTime + startTime + duration);
+  }
+
+  function playChord(freqs, startTime, duration, type, gainPeak) {
+    freqs.forEach((freq) => playTone(freq, startTime, duration, type, gainPeak));
+  }
+
+  // 早く打てたときの楽しい音(上昇アルペジオ＋最後にきらめく和音で長めに)
+  function playHappySound() {
+    const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568.0];
+    notes.forEach((freq, i) => {
+      playTone(freq, i * 0.1, 0.22, "triangle", 0.18);
+    });
+    const chordStart = notes.length * 0.1 + 0.05;
+    playChord([1046.5, 1318.5, 1568.0, 2093.0], chordStart, 0.9, "sine", 0.12);
+  }
+
+  // 時間がかかりすぎているときの不安になる音(うねる低音ドローン＋不規則な心拍音で長めに)
+  function playAnxiousSound() {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const duration = 1.8;
+
+    // うねる低音ドローン(周波数が下がりながら、トレモロでゆらぐ)
+    const drone = ctx.createOscillator();
+    const droneGain = ctx.createGain();
+    drone.type = "sawtooth";
+    drone.frequency.setValueAtTime(190, now);
+    drone.frequency.linearRampToValueAtTime(120, now + duration);
+    droneGain.gain.setValueAtTime(0, now);
+    droneGain.gain.linearRampToValueAtTime(0.09, now + 0.15);
+    droneGain.gain.linearRampToValueAtTime(0, now + duration);
+    drone.connect(droneGain);
+    droneGain.connect(ctx.destination);
+
+    const tremolo = ctx.createOscillator();
+    const tremoloGain = ctx.createGain();
+    tremolo.frequency.value = 7;
+    tremoloGain.gain.value = 0.05;
+    tremolo.connect(tremoloGain);
+    tremoloGain.connect(droneGain.gain);
+
+    drone.start(now);
+    tremolo.start(now);
+    drone.stop(now + duration);
+    tremolo.stop(now + duration);
+
+    // 不規則な心拍のような低い鼓動音
+    [0.1, 0.55, 0.95, 1.4].forEach((t) => {
+      playTone(55, t, 0.18, "sine", 0.22);
+    });
+  }
+
+  const targetEl = document.getElementById("target");
+  const inputEl = document.getElementById("input");
+  const resultEl = document.getElementById("result");
+  const progressFillEl = document.getElementById("progressFill");
+  const clearTimeEl = document.getElementById("clearTime");
+
+  function nextText() {
+    const raw = texts[Math.floor(Math.random() * texts.length)];
+    text = toPlainText(raw);
+    rubyChars = parseRubyText(raw);
+    inputEl.value = "";
+    inputEl.disabled = false;
+    inputEl.focus();
+    startTime = null;
+    warned = false;
+    clearInterval(timerInterval);
+    render();
+  }
+
+  // 文字数から基準となる予想タイム(1文字0.45秒)を算出
+  function getExpectedTime() {
+    return text.length * 0.45;
+  }
+
+  // 時間がかかりすぎた場合にゲームを終了させる(タイムを止めて入力を止める)
+  function gameOver(elapsedNow) {
+    clearInterval(timerInterval);
+    clearTimeEl.textContent = elapsedNow.toFixed(1);
+    inputEl.disabled = true;
+    playAnxiousSound();
+    resultEl.textContent = "タイムオーバー…ゲーム終了。";
+    setTimeout(nextText, 1800);
+  }
+
+  function render() {
+    const typed = inputEl.value;
+    if (typed.length > 0 && startTime === null) {
+      startTime = performance.now();
+      clearTimeEl.textContent = "0.0";
+      timerInterval = setInterval(() => {
+        const elapsedNow = (performance.now() - startTime) / 1000;
+        clearTimeEl.textContent = elapsedNow.toFixed(1);
+        if (!warned && elapsedNow > getExpectedTime() * 1.5) {
+          warned = true;
+          gameOver(elapsedNow);
+        }
+      }, 100);
+    }
+    let html = "";
+    for (let i = 0; i < text.length; i++) {
+      const { ch, ruby } = rubyChars[i];
+      const charHtml = ruby ? `<ruby>${ch}<rt>${ruby}</rt></ruby>` : ch;
+      if (i < typed.length) {
+        html += `<span class="done">${charHtml}</span>`;
+      } else if (i === typed.length) {
+        html += `<span class="next">${charHtml}</span>`;
+      } else {
+        html += charHtml;
+      }
+    }
+    targetEl.innerHTML = html;
+    progressFillEl.style.width = `${Math.min(100, (typed.length / text.length) * 100)}%`;
+
+    if (typed === text) {
+      clearInterval(timerInterval);
+      const elapsedSec = (performance.now() - startTime) / 1000;
+      clearTimeEl.textContent = elapsedSec.toFixed(1);
+      const expected = getExpectedTime();
+      playHappySound();
+      if (elapsedSec < expected * 0.8) {
+        resultEl.textContent = "クリア！すごく速い！";
+      } else {
+        resultEl.textContent = "クリア！おめでとうございます。";
+      }
+      inputEl.disabled = true;
+      setTimeout(nextText, 1200);
+    } else {
+      resultEl.textContent = "";
+    }
+  }
+
+  inputEl.addEventListener("input", (e) => {
+    if (e.isComposing) return;
+    render();
+  });
+  inputEl.addEventListener("compositionend", render);
+  nextText();
+</script>
+
+</body>
+</html>

@@ -1,372 +1,694 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>Typing プラクティス</title>
-<style>
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #1e2a4a, #0f172a);
-  }
-  .app {
-    width: 640px;
-    max-width: 92vw;
-    background: #ffe3ef;
-    border-radius: 16px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-    padding: 36px 40px;
-  }
-  h1 {
-    text-align: center;
-    margin: 0 0 8px;
-    font-size: 26px;
-    color: #1e293b;
-    letter-spacing: 2px;
-  }
-  .subtitle {
-    text-align: center;
-    color: #94a3b8;
-    font-size: 13px;
-    margin-bottom: 28px;
-  }
-  .progress-bar {
-    height: 8px;
-    border-radius: 4px;
-    background: #e2e8f0;
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #38bdf8, #2563eb);
-    transition: width 0.15s ease;
-  }
-  #target {
-    font-size: 26px;
-    line-height: 1.9;
-    letter-spacing: 1px;
-    padding: 24px;
-    border-radius: 12px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    min-height: 90px;
-    color: #475569;
-  }
-  #target span.done {
-    color: #2563eb;
-    font-weight: 600;
-  }
-  #target span.next {
-    background: #fde047;
-    border-radius: 4px;
-    color: #1e293b;
-    box-shadow: 0 0 0 2px #fde047;
-  }
-  #target rt {
-    font-size: 0.5em;
-    color: #64748b;
-    user-select: none;
-  }
-  #input {
-    display: block;
-    width: 100%;
-    font-size: 20px;
-    padding: 14px 16px;
-    margin-top: 20px;
-    border-radius: 10px;
-    border: 2px solid #cbd5e1;
-    outline: none;
-    transition: border-color 0.2s ease;
-  }
-  #input:focus {
-    border-color: #2563eb;
-  }
-  #result {
-    margin-top: 18px;
-    min-height: 26px;
-    text-align: center;
-    font-size: 17px;
-    font-weight: 600;
-    color: #16a34a;
-  }
-  .stats {
-    display: flex;
-    justify-content: center;
-    gap: 28px;
-    margin-top: 14px;
-    font-size: 13px;
-    color: #64748b;
-  }
-  .stats span {
-    font-weight: 700;
-    color: #1e293b;
-  }
-  .app-link {
-    display: block;
-    text-align: center;
-    text-decoration: none;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    font-weight: 700;
-    font-size: 16px;
-    padding: 16px 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    transition: transform 0.15s ease;
-  }
-  .app-link:hover {
-    transform: translateY(-2px);
-  }
-  .app-link .app-link-sub {
-    display: block;
-    font-weight: 400;
-    font-size: 12px;
-    opacity: 0.85;
-    margin-top: 4px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日常英会話フラッシュカード</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: white;
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    .other-app-link {
+      display: inline-block;
+      color: rgba(255,255,255,0.85);
+      font-size: 0.8rem;
+      text-decoration: underline;
+      margin-bottom: 20px;
+    }
+
+    /* カテゴリタブ */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 2px solid rgba(255,255,255,0.6);
+      background: transparent;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: white;
+      color: #764ba2;
+      border-color: white;
+      font-weight: bold;
+    }
+
+    .tab:hover:not(.active) {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* 進捗 */
+    .progress-wrap {
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.9rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      max-width: 480px;
+      height: 6px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: white;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    /* カード */
+    .card-wrap {
+      perspective: 1200px;
+      width: 100%;
+      max-width: 480px;
+      height: 340px;
+      margin-bottom: 28px;
+      cursor: pointer;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .card-front {
+      background: white;
+    }
+
+    .card-back {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      transform: rotateY(180deg);
+      color: white;
+    }
+
+    .card-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 16px;
+    }
+
+    .card-back .card-label {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .card-text-ja {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .card-text-en {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .card-hint {
+      font-size: 0.8rem;
+      color: #bbb;
+      margin-top: 12px;
+    }
+
+    .card-back .card-text-ja {
+      color: rgba(255,255,255,0.85);
+      font-size: 1rem;
+      font-weight: normal;
+    }
+
+    /* ボタン */
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 120px;
+    }
+
+    .btn-prev {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .btn-next {
+      background: white;
+      color: #764ba2;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 結果 */
+    .result-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-know {
+      background: #4ade80;
+      color: white;
+    }
+
+    .btn-unknown {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    /* カウンター */
+    .score {
+      color: rgba(255,255,255,0.85);
+      font-size: 0.85rem;
+      display: flex;
+      gap: 16px;
+    }
+
+    .score span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dot-green { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+    .dot-red   { width: 8px; height: 8px; border-radius: 50%; background: #f87171; }
+
+    /* 完了画面 */
+    .complete {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .complete.show {
+      display: flex;
+    }
+
+    .complete-box {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .complete-emoji {
+      font-size: 4rem;
+      margin-bottom: 12px;
+    }
+
+    .complete-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .complete-score {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .main-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
 </head>
 <body>
 
-<div class="app">
-  <a class="app-link" href="./flashcard/">
-    日常英会話フラッシュカード
-    <span class="app-link-sub">カードをタップして英語を確認しよう →</span>
-  </a>
-  <h1>Typing プラクティス</h1>
-  <div class="subtitle">表示された文章を正確に入力しましょう</div>
+<h1>日常英会話フラッシュカード</h1>
+<p class="subtitle">カードをタップして英語を確認しよう</p>
+<a class="other-app-link" href="./typing/">Typingプラクティスをやる →</a>
 
+<div class="tabs">
+  <button class="tab active" onclick="switchCategory('greeting')">日常・挨拶</button>
+  <button class="tab" onclick="switchCategory('business')">仕事・ビジネス</button>
+  <button class="tab" onclick="switchCategory('shopping')">買い物・外食</button>
+  <button class="tab" onclick="switchCategory('restaurant')">レストラン</button>
+  <button class="tab" onclick="switchCategory('travel')">旅行・観光</button>
+  <button class="tab" onclick="switchCategory('transport')">タクシー・電車</button>
+  <button class="tab" onclick="switchCategory('hotel')">ホテルトラブル</button>
+</div>
+
+<div class="main-content" id="mainContent">
+  <div class="progress-wrap">
+    <span id="cardCount">1 / 12</span>
+    <div class="score">
+      <span><div class="dot-green"></div><span id="knowCount">0</span> 知ってた</span>
+      <span><div class="dot-red"></div><span id="unknownCount">0</span> 知らなかった</span>
+    </div>
+  </div>
   <div class="progress-bar">
-    <div class="progress-bar-fill" id="progressFill"></div>
+    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
   </div>
 
-  <div id="target"></div>
-  <input type="text" id="input" autofocus placeholder="ここに入力してください">
-  <div id="result"></div>
+  <div class="card-wrap" onclick="flipCard()">
+    <div class="card" id="card">
+      <div class="card-face card-front">
+        <div class="card-label">日本語</div>
+        <div class="card-text-ja" id="jaText"></div>
+        <div class="card-hint">タップして英語を見る</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-label">English</div>
+        <div class="card-text-en" id="enText"></div>
+        <div class="card-text-ja" id="jaTextBack"></div>
+        <div id="responseSection" style="display:none; margin-top:14px; border-top:1px solid rgba(255,255,255,0.4); padding-top:12px; width:100%; text-align:center;">
+          <div class="card-label" style="margin-bottom:6px;">Staff Response</div>
+          <div id="resEnText" style="font-size:1rem; font-weight:bold; line-height:1.5;"></div>
+          <div id="resJaText" style="font-size:0.8rem; opacity:0.85; margin-top:5px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <div class="stats">
-    <div>かかった時間 <span id="clearTime">0.0</span>秒</div>
+  <div class="result-buttons" id="resultButtons" style="display:none; margin-bottom: 20px;">
+    <button class="btn btn-unknown" onclick="answer(false)">知らなかった</button>
+    <button class="btn btn-know" onclick="answer(true)">知ってた！</button>
+  </div>
+
+  <div class="buttons" id="navButtons">
+    <button class="btn btn-prev" id="prevBtn" onclick="prevCard()" disabled>← 前へ</button>
+    <button class="btn btn-next" id="nextBtn" onclick="nextCard()">次へ →</button>
+  </div>
+</div>
+
+<div class="complete" id="completeScreen">
+  <div class="complete-box">
+    <div class="complete-emoji" id="completeEmoji">🎉</div>
+    <div class="complete-title">お疲れ様でした！</div>
+    <div class="complete-score" id="completeScore"></div>
+    <button class="btn-restart" onclick="restart()">もう一度やる</button>
   </div>
 </div>
 
 <script>
-  // {漢字|ふりがな} の形式で、漢字部分にルビ(ふりがな)を付ける
-  const texts = [
-    "{今日|きょう}は6{月|がつ}17{日|にち}です。{朝|あさ}7{時|じ}に{起|お}きて、9{時|じ}から{仕事|しごと}を{始|はじ}めました。",
-    "{猿|さる}も{木|き}から{落|お}ちる。{塵|ちり}も{積|つ}もれば{山|やま}となる。{早|はや}く{宿題|しゅくだい}を{終|お}わらせましょう。",
-    "{雨|あめ}が{降|ふ}ったら、{傘|かさ}を{持|も}って{行|い}きましょう。{体|からだ}を{壊|こわ}さないようにしてください。",
-    "{私|わたし}の{趣味|しゅみ}は、{本|ほん}を{読|よ}むことと、{音楽|おんがく}を{聞|き}くことです。",
-    "{明日|あした}は{朝|あさ}{早|はや}くから、{病院|びょういん}で{仕事|しごと}があります。{元気|げんき}に{行|い}きましょう。"
-  ];
+  const data = {
+    greeting: [
+      { ja: "おはようございます", en: "Good morning." },
+      { ja: "こんにちは", en: "Hello. / Good afternoon." },
+      { ja: "こんばんは", en: "Good evening." },
+      { ja: "お元気ですか?", en: "How are you?" },
+      { ja: "おかげさまで元気です", en: "I'm doing well, thank you." },
+      { ja: "はじめまして", en: "Nice to meet you." },
+      { ja: "よろしくお願いします", en: "I look forward to working with you." },
+      { ja: "ありがとうございます", en: "Thank you very much." },
+      { ja: "すみません", en: "Excuse me. / I'm sorry." },
+      { ja: "大丈夫ですよ", en: "No problem. / It's okay." },
+      { ja: "お疲れ様でした", en: "Good work today." },
+      { ja: "またね / またあとで", en: "See you later." },
+    ],
+    business: [
+      { ja: "会議を始めましょう", en: "Let's get started." },
+      { ja: "確認させてください", en: "Let me confirm that." },
+      { ja: "少々お待ちください", en: "Just a moment, please." },
+      { ja: "折り返しご連絡します", en: "I'll get back to you." },
+      { ja: "ご担当者はどなたですか?", en: "Who is in charge of this?" },
+      { ja: "期限はいつですか?", en: "What is the deadline?" },
+      { ja: "資料をお送りします", en: "I'll send you the documents." },
+      { ja: "ご確認をお願いします", en: "Could you please review this?" },
+      { ja: "ご不明な点があればお知らせください", en: "Please let me know if you have any questions." },
+      { ja: "お世話になっております", en: "Thank you for your continued support." },
+      { ja: "よろしければ来週お話しできますか?", en: "Would you be available to talk next week?" },
+      { ja: "ご提案をありがとうございます", en: "Thank you for your suggestion." },
+    ],
+    shopping: [
+      { ja: "これはいくらですか?", en: "How much is this?" },
+      { ja: "試着してもいいですか?", en: "Can I try this on?" },
+      { ja: "もう少し安くなりますか?", en: "Can you give me a discount?" },
+      { ja: "カードで払えますか?", en: "Can I pay by card?" },
+      { ja: "袋に入れてください", en: "Please put it in a bag." },
+      { ja: "レシートをください", en: "Can I have a receipt, please?" },
+      { ja: "おすすめは何ですか?", en: "What do you recommend?" },
+      { ja: "注文してもいいですか?", en: "Can I order, please?" },
+      { ja: "お会計をお願いします", en: "Check, please." },
+      { ja: "テイクアウトできますか?", en: "Can I get this to go?" },
+      { ja: "アレルギーがあります", en: "I have allergies." },
+      { ja: "辛さを控えめにしてください", en: "Could you make it less spicy?" },
+    ],
+    restaurant: [
+      { ja: "予約をしています", en: "I have a reservation.", res: "What name is it under, please?", resJa: "お名前をお伺いできますか?" },
+      { ja: "名前はXXXです", en: "My name is XXX.", res: "Let me check... Yes, your table is ready.", resJa: "確認いたします…はい、お席のご用意ができております。" },
+      { ja: "2名です、予約はしていません", en: "We're a party of two, no reservation.", res: "No problem, please wait a moment.", resJa: "かしこまりました、少々お待ちください。" },
+      { ja: "どのくらい待ちますか?", en: "How long is the wait?", res: "About fifteen minutes.", resJa: "15分ほどでございます。" },
+      { ja: "窓側の席をお願いします", en: "Could we have a table by the window?", res: "Of course, right this way.", resJa: "かしこまりました、こちらへどうぞ。" },
+      { ja: "メニューをください", en: "Could I have a menu, please?", res: "Here you are.", resJa: "どうぞ。" },
+      { ja: "おすすめは何ですか?", en: "What do you recommend?", res: "Our special today is grilled salmon.", resJa: "本日のおすすめは鮭のグリルでございます。" },
+      { ja: "これは辛いですか?", en: "Is this spicy?", res: "Yes, it's a little spicy.", resJa: "はい、少し辛味がございます。" },
+      { ja: "ナッツのアレルギーがあります", en: "I have a nut allergy.", res: "Thank you for letting us know. I'll inform the kitchen.", resJa: "お知らせいただきありがとうございます。厨房に伝えます。" },
+      { ja: "注文をお願いします", en: "I'd like to order, please.", res: "Sure, what would you like?", resJa: "かしこまりました。ご注文はいかがなさいますか?" },
+      { ja: "これを一つお願いします", en: "I'll have this one, please." },
+      { ja: "お水をもう一杯いただけますか?", en: "Could I get another glass of water?", res: "Sure, right away.", resJa: "かしこまりました、すぐにお持ちいたします。" },
+      { ja: "注文したものがまだ来ていません", en: "My order hasn't arrived yet.", res: "I'm so sorry, let me check on that right away.", resJa: "大変申し訳ございません、すぐに確認いたします。" },
+      { ja: "これは注文していません", en: "I didn't order this.", res: "I apologize, I'll fix that right away.", resJa: "申し訳ございません、すぐに直します。" },
+      { ja: "とても美味しかったです", en: "That was delicious.", res: "Thank you! I'm glad you enjoyed it.", resJa: "ありがとうございます、お気に召していただけて嬉しいです。" },
+      { ja: "お会計をお願いします", en: "Check, please.", res: "Certainly, one moment please.", resJa: "かしこまりました、少々お待ちください。" },
+      { ja: "別々に払えますか?", en: "Can we pay separately?", res: "Yes, that's fine.", resJa: "はい、大丈夫でございます。" },
+      { ja: "残りを持ち帰りできますか?", en: "Could I get a box to take the rest home?", res: "Of course, I'll bring one right away.", resJa: "もちろんでございます、すぐにお持ちします。" },
+    ],
+    travel: [
+      { ja: "駅はどこですか?", en: "Where is the station?" },
+      { ja: "近くにコンビニはありますか?", en: "Is there a convenience store nearby?" },
+      { ja: "チェックインをお願いします", en: "I'd like to check in." },
+      { ja: "チェックアウトは何時ですか?", en: "What time is checkout?" },
+      { ja: "この電車は渋谷に止まりますか?", en: "Does this train stop at Shibuya?" },
+      { ja: "写真を撮ってもらえますか?", en: "Could you take a picture of me?" },
+      { ja: "荷物を預かってもらえますか?", en: "Can I leave my luggage here?" },
+      { ja: "タクシーを呼んでもらえますか?", en: "Could you call a taxi for me?" },
+      { ja: "Wi-Fiはありますか?", en: "Is there Wi-Fi?" },
+      { ja: "道に迷ってしまいました", en: "I'm lost." },
+      { ja: "ここに行きたいのですが", en: "I'd like to go here." },
+      { ja: "入場料はいくらですか?", en: "How much is the admission fee?" },
+      { ja: "この辺の観光名所はどこですか?", en: "Where are the tourist attractions around here?" },
+      { ja: "おすすめの観光スポットはどこですか?", en: "What tourist spots do you recommend?" },
+      { ja: "観光マップはありますか?", en: "Do you have a tourist map?" },
+      { ja: "英語のパンフレットはありますか?", en: "Do you have a brochure in English?" },
+      { ja: "ここは何時に開きますか?", en: "What time does this place open?" },
+      { ja: "ここは何時に閉まりますか?", en: "What time does this place close?" },
+      { ja: "無料で入れますか?", en: "Is it free to enter?" },
+      { ja: "音声ガイドはありますか?", en: "Is there an audio guide?" },
+      { ja: "写真撮影は禁止ですか?", en: "Is photography prohibited here?" },
+      { ja: "有名な地元料理は何ですか?", en: "What is the famous local food here?" },
+      { ja: "ここから歩いて行けますか?", en: "Can I walk there from here?" },
+      { ja: "一番人気の観光地はどこですか?", en: "What is the most popular tourist spot?" },
+    ],
+    transport: [
+      { ja: "空港までいくらですか?", en: "How much is it to the airport?" },
+      { ja: "どのくらい時間がかかりますか?", en: "How long does it take?" },
+      { ja: "この住所まで行ってください", en: "Please take me to this address." },
+      { ja: "ここで止めてください", en: "Please stop here." },
+      { ja: "トランクに荷物を入れてもらえますか?", en: "Could you put my luggage in the trunk?" },
+      { ja: "領収書をください", en: "Could I have a receipt, please?" },
+      { ja: "次の電車は何時ですか?", en: "What time is the next train?" },
+      { ja: "この電車は〇〇行きですか?", en: "Is this train going to ○○?" },
+      { ja: "何番線に乗ればいいですか?", en: "Which platform should I take?" },
+      { ja: "乗り換えはありますか?", en: "Do I need to transfer?" },
+      { ja: "終点はどこですか?", en: "What is the last stop?" },
+      { ja: "このバスは市内中心部に行きますか?", en: "Does this bus go to the city center?" },
+      { ja: "片道ですか、往復ですか?", en: "Is that one-way or round trip?" },
+      { ja: "渋滞を避けて行けますか?", en: "Can you take a route to avoid traffic?" },
+    ],
+    hotel: [
+      { ja: "予約をしています", en: "I have a reservation.", res: "Could I have your name, please?", resJa: "お名前をお聞かせいただけますか?" },
+      { ja: "名前はXXXです", en: "My name is XXX.", res: "Thank you. I'll check your reservation right away.", resJa: "ありがとうございます。すぐにご予約を確認いたします。" },
+      { ja: "シングルルームを予約しました", en: "I reserved a single room.", res: "Yes, I have your reservation. Here is your room key.", resJa: "はい、ご確認できました。こちらがお部屋の鍵です。" },
+      { ja: "2泊の予約です", en: "I have a reservation for two nights.", res: "That's right. You'll be checking out on Sunday.", resJa: "はい、日曜日がチェックアウトですね。" },
+      { ja: "朝食は含まれていますか?", en: "Is breakfast included?", res: "Yes, breakfast is included. It's served from 7 to 10 a.m.", resJa: "はい、朝食込みです。7時から10時にご用意しております。" },
+      { ja: "禁煙部屋をお願いします", en: "I'd like a non-smoking room, please.", res: "Of course. Your room is a non-smoking room.", resJa: "かしこまりました。禁煙のお部屋でございます。" },
+      { ja: "高層階の部屋はありますか?", en: "Do you have a room on a higher floor?", res: "Yes, we can offer you a room on the 15th floor.", resJa: "はい、15階のお部屋をご用意できます。" },
+      { ja: "早めにチェックインできますか?", en: "Can I check in early?", res: "Your room is ready now. Please go ahead.", resJa: "お部屋の準備ができております。どうぞご入室ください。" },
+      { ja: "部屋の照明が切れています", en: "The light in my room is out." },
+      { ja: "トイレが流れません", en: "The toilet won't flush." },
+      { ja: "シャワーのお湯が出ません", en: "There's no hot water in the shower." },
+      { ja: "エアコンが動きません", en: "The air conditioning isn't working." },
+      { ja: "部屋の鍵が使えません", en: "My room key doesn't work." },
+      { ja: "隣の部屋がうるさいです", en: "The room next door is very noisy." },
+      { ja: "タオルを追加でもらえますか?", en: "Could I have some extra towels?" },
+      { ja: "部屋を掃除してもらえますか?", en: "Could you clean my room, please?" },
+      { ja: "モーニングコールをお願いします", en: "I'd like a wake-up call, please." },
+      { ja: "ルームサービスをお願いします", en: "I'd like to order room service." },
+      { ja: "チェックアウトを延長できますか?", en: "Can I extend my checkout time?" },
+      { ja: "別の部屋に変えてもらえますか?", en: "Could I change to a different room?" },
+    ]
+  };
 
-  // "{漢字|かな}" を含む文字列から、ルビなしのプレーンテキスト(入力判定用)を作る
-  function toPlainText(raw) {
-    return raw.replace(/\{([^|{}]+)\|([^|{}]+)\}/g, "$1");
+  let currentCategory = 'greeting';
+  let cards = [];
+  let index = 0;
+  let isFlipped = false;
+  let knowCount = 0;
+  let unknownCount = 0;
+  let answered = [];
+
+  function init() {
+    cards = [...data[currentCategory]];
+    index = 0;
+    isFlipped = false;
+    knowCount = 0;
+    unknownCount = 0;
+    answered = new Array(cards.length).fill(null);
+    renderCard();
+    updateUI();
   }
 
-  // "{漢字|かな}" を1文字ずつの配列に分解し、各文字に対応するルビ情報を付与する
-  // 例: "{今日|きょう}は" -> [{ch:"今",ruby:"きょう"}, {ch:"日",ruby:null}, {ch:"は",ruby:null}]
-  function parseRubyText(raw) {
-    const chars = [];
-    const regex = /\{([^|{}]+)\|([^|{}]+)\}/g;
-    let lastIndex = 0;
-    let match;
-    while ((match = regex.exec(raw)) !== null) {
-      const plainBefore = raw.slice(lastIndex, match.index);
-      for (const ch of plainBefore) {
-        chars.push({ ch, ruby: null });
-      }
-      const kanji = match[1];
-      const ruby = match[2];
-      for (let i = 0; i < kanji.length; i++) {
-        chars.push({ ch: kanji[i], ruby: i === 0 ? ruby : null });
-      }
-      lastIndex = regex.lastIndex;
-    }
-    const plainAfter = raw.slice(lastIndex);
-    for (const ch of plainAfter) {
-      chars.push({ ch, ruby: null });
-    }
-    return chars;
-  }
-
-  let text = "";
-  let rubyChars = [];
-  let startTime = null;
-  let timerInterval = null;
-  let warned = false;
-
-  let audioCtx = null;
-  function getAudioCtx() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    return audioCtx;
-  }
-
-  function playTone(freq, startTime, duration, type, gainPeak) {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
-    gain.gain.linearRampToValueAtTime(gainPeak, ctx.currentTime + startTime + 0.02);
-    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + startTime + duration);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(ctx.currentTime + startTime);
-    osc.stop(ctx.currentTime + startTime + duration);
-  }
-
-  function playChord(freqs, startTime, duration, type, gainPeak) {
-    freqs.forEach((freq) => playTone(freq, startTime, duration, type, gainPeak));
-  }
-
-  // 早く打てたときの楽しい音(上昇アルペジオ＋最後にきらめく和音で長めに)
-  function playHappySound() {
-    const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568.0];
-    notes.forEach((freq, i) => {
-      playTone(freq, i * 0.1, 0.22, "triangle", 0.18);
+  function switchCategory(cat) {
+    currentCategory = cat;
+    const catOrder = ['greeting', 'business', 'shopping', 'restaurant', 'travel', 'transport', 'hotel'];
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', catOrder[i] === cat);
     });
-    const chordStart = notes.length * 0.1 + 0.05;
-    playChord([1046.5, 1318.5, 1568.0, 2093.0], chordStart, 0.9, "sine", 0.12);
+    document.getElementById('completeScreen').classList.remove('show');
+    document.getElementById('mainContent').style.display = 'flex';
+    init();
   }
 
-  // 時間がかかりすぎているときの不安になる音(うねる低音ドローン＋不規則な心拍音で長めに)
-  function playAnxiousSound() {
-    const ctx = getAudioCtx();
-    const now = ctx.currentTime;
-    const duration = 1.8;
+  function renderCard() {
+    const c = cards[index];
+    document.getElementById('jaText').textContent = c.ja;
+    document.getElementById('enText').textContent = c.en;
+    document.getElementById('jaTextBack').textContent = c.ja;
 
-    // うねる低音ドローン(周波数が下がりながら、トレモロでゆらぐ)
-    const drone = ctx.createOscillator();
-    const droneGain = ctx.createGain();
-    drone.type = "sawtooth";
-    drone.frequency.setValueAtTime(190, now);
-    drone.frequency.linearRampToValueAtTime(120, now + duration);
-    droneGain.gain.setValueAtTime(0, now);
-    droneGain.gain.linearRampToValueAtTime(0.09, now + 0.15);
-    droneGain.gain.linearRampToValueAtTime(0, now + duration);
-    drone.connect(droneGain);
-    droneGain.connect(ctx.destination);
-
-    const tremolo = ctx.createOscillator();
-    const tremoloGain = ctx.createGain();
-    tremolo.frequency.value = 7;
-    tremoloGain.gain.value = 0.05;
-    tremolo.connect(tremoloGain);
-    tremoloGain.connect(droneGain.gain);
-
-    drone.start(now);
-    tremolo.start(now);
-    drone.stop(now + duration);
-    tremolo.stop(now + duration);
-
-    // 不規則な心拍のような低い鼓動音
-    [0.1, 0.55, 0.95, 1.4].forEach((t) => {
-      playTone(55, t, 0.18, "sine", 0.22);
-    });
-  }
-
-  const targetEl = document.getElementById("target");
-  const inputEl = document.getElementById("input");
-  const resultEl = document.getElementById("result");
-  const progressFillEl = document.getElementById("progressFill");
-  const clearTimeEl = document.getElementById("clearTime");
-
-  function nextText() {
-    const raw = texts[Math.floor(Math.random() * texts.length)];
-    text = toPlainText(raw);
-    rubyChars = parseRubyText(raw);
-    inputEl.value = "";
-    inputEl.disabled = false;
-    inputEl.focus();
-    startTime = null;
-    warned = false;
-    clearInterval(timerInterval);
-    render();
-  }
-
-  // 文字数から基準となる予想タイム(1文字0.45秒)を算出
-  function getExpectedTime() {
-    return text.length * 0.45;
-  }
-
-  // 時間がかかりすぎた場合にゲームを終了させる(タイムを止めて入力を止める)
-  function gameOver(elapsedNow) {
-    clearInterval(timerInterval);
-    clearTimeEl.textContent = elapsedNow.toFixed(1);
-    inputEl.disabled = true;
-    playAnxiousSound();
-    resultEl.textContent = "タイムオーバー…ゲーム終了。";
-    setTimeout(nextText, 1800);
-  }
-
-  function render() {
-    const typed = inputEl.value;
-    if (typed.length > 0 && startTime === null) {
-      startTime = performance.now();
-      clearTimeEl.textContent = "0.0";
-      timerInterval = setInterval(() => {
-        const elapsedNow = (performance.now() - startTime) / 1000;
-        clearTimeEl.textContent = elapsedNow.toFixed(1);
-        if (!warned && elapsedNow > getExpectedTime() * 1.5) {
-          warned = true;
-          gameOver(elapsedNow);
-        }
-      }, 100);
-    }
-    let html = "";
-    for (let i = 0; i < text.length; i++) {
-      const { ch, ruby } = rubyChars[i];
-      const charHtml = ruby ? `<ruby>${ch}<rt>${ruby}</rt></ruby>` : ch;
-      if (i < typed.length) {
-        html += `<span class="done">${charHtml}</span>`;
-      } else if (i === typed.length) {
-        html += `<span class="next">${charHtml}</span>`;
-      } else {
-        html += charHtml;
-      }
-    }
-    targetEl.innerHTML = html;
-    progressFillEl.style.width = `${Math.min(100, (typed.length / text.length) * 100)}%`;
-
-    if (typed === text) {
-      clearInterval(timerInterval);
-      const elapsedSec = (performance.now() - startTime) / 1000;
-      clearTimeEl.textContent = elapsedSec.toFixed(1);
-      const expected = getExpectedTime();
-      playHappySound();
-      if (elapsedSec < expected * 0.8) {
-        resultEl.textContent = "クリア！すごく速い！";
-      } else {
-        resultEl.textContent = "クリア！おめでとうございます。";
-      }
-      inputEl.disabled = true;
-      setTimeout(nextText, 1200);
+    const resSection = document.getElementById('responseSection');
+    if (c.res) {
+      document.getElementById('resEnText').textContent = c.res;
+      document.getElementById('resJaText').textContent = c.resJa || '';
+      resSection.style.display = 'block';
     } else {
-      resultEl.textContent = "";
+      resSection.style.display = 'none';
+    }
+
+    const card = document.getElementById('card');
+    card.classList.remove('flipped');
+    isFlipped = false;
+
+    document.getElementById('resultButtons').style.display = 'none';
+    document.getElementById('navButtons').style.display = 'flex';
+  }
+
+  function getEnVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    const femalePrefs = [
+      'Samantha', 'Karen', 'Ava', 'Allison', 'Fiona', 'Victoria', 'Zoe', 'Susan',
+      'Zira', 'Hazel', 'Aria', 'Jenny', 'Michelle', 'Catherine', 'Eva', 'Linda'
+    ];
+    for (const name of femalePrefs) {
+      const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+      if (v) return v;
+    }
+    return voices.find(v => /female/i.test(v.name) && v.lang.startsWith('en'))
+        || voices.find(v => v.lang.startsWith('en-US'))
+        || null;
+  }
+
+  function speak(text) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-US';
+    utter.rate = 0.85;
+    utter.pitch = 1.1;
+    const v = getEnVoice();
+    if (v) utter.voice = v;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function speakDialog(guestText, staffText) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const v = getEnVoice();
+
+    const g = new SpeechSynthesisUtterance(guestText);
+    g.lang = 'en-US'; g.rate = 0.85; g.pitch = 1.1;
+    if (v) g.voice = v;
+
+    const s = new SpeechSynthesisUtterance(staffText);
+    s.lang = 'en-US'; s.rate = 0.85; s.pitch = 0.9;
+    if (v) s.voice = v;
+
+    g.onend = () => setTimeout(() => window.speechSynthesis.speak(s), 700);
+    window.speechSynthesis.speak(g);
+  }
+
+  function flipCard() {
+    if (isFlipped) return;
+    isFlipped = true;
+    document.getElementById('card').classList.add('flipped');
+    document.getElementById('resultButtons').style.display = 'flex';
+    document.getElementById('navButtons').style.display = 'none';
+    const c = cards[index];
+    if (c.res) {
+      speakDialog(c.en, c.res);
+    } else {
+      speak(c.en);
     }
   }
 
-  inputEl.addEventListener("input", (e) => {
-    if (e.isComposing) return;
-    render();
-  });
-  inputEl.addEventListener("compositionend", render);
-  nextText();
-</script>
+  function answer(knew) {
+    if (answered[index] === null) {
+      if (knew) knowCount++;
+      else unknownCount++;
+      answered[index] = knew;
+    }
+    updateUI();
+    nextCard();
+  }
 
+  function nextCard() {
+    if (index < cards.length - 1) {
+      index++;
+      renderCard();
+      updateUI();
+    } else if (answered.every(a => a !== null)) {
+      showComplete();
+    }
+  }
+
+  function prevCard() {
+    if (index > 0) {
+      index--;
+      renderCard();
+      updateUI();
+    }
+  }
+
+  function updateUI() {
+    document.getElementById('cardCount').textContent = `${index + 1} / ${cards.length}`;
+    document.getElementById('progressFill').style.width = `${((index + 1) / cards.length) * 100}%`;
+    document.getElementById('knowCount').textContent = knowCount;
+    document.getElementById('unknownCount').textContent = unknownCount;
+    document.getElementById('prevBtn').disabled = index === 0;
+    document.getElementById('nextBtn').disabled = index === cards.length - 1;
+  }
+
+  function showComplete() {
+    document.getElementById('mainContent').style.display = 'none';
+    const screen = document.getElementById('completeScreen');
+    screen.classList.add('show');
+
+    const pct = Math.round((knowCount / cards.length) * 100);
+    let emoji = pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪';
+    document.getElementById('completeEmoji').textContent = emoji;
+    document.getElementById('completeScore').textContent =
+      `${cards.length}問中 ${knowCount}問 知っていました(${pct}%)`;
+  }
+
+  function restart() {
+    document.getElementById('completeScreen').classList.remove('show');
+    document.getElementById('mainContent').style.display = 'flex';
+    init();
+  }
+
+  init();
+</script>
 </body>
 </html>
