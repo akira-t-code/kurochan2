@@ -110,11 +110,39 @@
     font-weight: 700;
     color: #1e293b;
   }
+  .app-link {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s ease;
+  }
+  .app-link:hover {
+    transform: translateY(-2px);
+  }
+  .app-link .app-link-sub {
+    display: block;
+    font-weight: 400;
+    font-size: 12px;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
 </style>
 </head>
 <body>
 
 <div class="app">
+  <a class="app-link" href="./flashcard/">
+    日常英会話フラッシュカード
+    <span class="app-link-sub">カードをタップして英語を確認しよう →</span>
+  </a>
   <h1>Typing プラクティス</h1>
   <div class="subtitle">表示された文章を正確に入力しましょう</div>
 
